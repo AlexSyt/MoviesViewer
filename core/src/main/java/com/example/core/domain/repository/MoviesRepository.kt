@@ -1,6 +1,7 @@
-package com.example.core.domain
+package com.example.core.domain.repository
 
 import com.example.core.common.Result
+import com.example.core.domain.model.Movie
 
 interface MoviesRepository {
 
