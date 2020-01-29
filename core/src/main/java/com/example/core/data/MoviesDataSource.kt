@@ -5,5 +5,5 @@ import com.example.core.domain.model.Movie
 
 interface MoviesDataSource {
 
-    suspend fun getMovies(): Result<List<Movie>>
+    suspend fun getMovies(releaseDateGte: String, releaseDateLte: String): Result<List<Movie>>
 }

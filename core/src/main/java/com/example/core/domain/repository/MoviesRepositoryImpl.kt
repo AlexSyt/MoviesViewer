@@ -15,17 +15,24 @@ class MoviesRepositoryImpl(
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
     private val cachedMovies: MutableList<Movie> = ArrayList()
 
-    override suspend fun getMovies(forceUpdate: Boolean): Result<List<Movie>> =
+    override suspend fun getMovies(
+        forceUpdate: Boolean,
+        releaseDateGte: String,
+        releaseDateLte: String
+    ): Result<List<Movie>> =
         withContext(ioDispatcher) {
             when {
                 !forceUpdate && cachedMovies.isNotEmpty() -> Success(cachedMovies)
-                else -> fetchMovies().also { result ->
+                else -> fetchMovies(releaseDateGte, releaseDateLte).also { result ->
                     (result as? Success)?.let { refreshCache(it.data) }
                 }
             }
         }
 
-    private suspend fun fetchMovies(): Result<List<Movie>> = moviesRemoteDataSource.getMovies()
+    private suspend fun fetchMovies(
+        releaseDateGte: String,
+        releaseDateLte: String
+    ): Result<List<Movie>> = moviesRemoteDataSource.getMovies(releaseDateGte, releaseDateLte)
 
     private fun refreshCache(movies: List<Movie>) {
         cachedMovies.clear()
