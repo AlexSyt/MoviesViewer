@@ -7,8 +7,8 @@ import com.example.core.domain.repository.MoviesRepository
 class GetMoviesUseCase(private val repository: MoviesRepository) {
 
     suspend operator fun invoke(
-        forceUpdate: Boolean = false,
         releaseDateGte: String,
-        releaseDateLte: String
-    ): Result<List<Movie>> = repository.getMovies(forceUpdate, releaseDateGte, releaseDateLte)
+        releaseDateLte: String,
+        forceUpdate: Boolean = false
+    ): Result<List<Movie>> = repository.getMovies(releaseDateGte, releaseDateLte, forceUpdate)
 }

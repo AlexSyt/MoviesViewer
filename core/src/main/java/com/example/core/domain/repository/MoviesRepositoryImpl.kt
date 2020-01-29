@@ -16,9 +16,9 @@ class MoviesRepositoryImpl(
     private val cachedMovies: MutableList<Movie> = ArrayList()
 
     override suspend fun getMovies(
-        forceUpdate: Boolean,
         releaseDateGte: String,
-        releaseDateLte: String
+        releaseDateLte: String,
+        forceUpdate: Boolean
     ): Result<List<Movie>> =
         withContext(ioDispatcher) {
             when {

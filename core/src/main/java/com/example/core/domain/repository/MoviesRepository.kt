@@ -6,8 +6,8 @@ import com.example.core.domain.model.Movie
 interface MoviesRepository {
 
     suspend fun getMovies(
-        forceUpdate: Boolean = false,
         releaseDateGte: String,
-        releaseDateLte: String
+        releaseDateLte: String,
+        forceUpdate: Boolean = false
     ): Result<List<Movie>>
 }
