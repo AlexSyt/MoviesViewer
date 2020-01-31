@@ -25,7 +25,12 @@ class MoviesFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         recyclerView.adapter = adapter
-        moviesViewModel.items.observe(viewLifecycleOwner, Observer(adapter::submitList))
-        moviesViewModel.loadTasks()
+        swipeRefreshLayout.setOnRefreshListener { moviesViewModel.loadTasks(true) }
+
+        moviesViewModel.apply {
+            items.observe(viewLifecycleOwner, Observer(adapter::submitList))
+            dataLoading.observe(viewLifecycleOwner, Observer(swipeRefreshLayout::setRefreshing))
+            loadTasks()
+        }
     }
 }
