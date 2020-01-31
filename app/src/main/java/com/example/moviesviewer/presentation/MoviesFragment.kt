@@ -5,13 +5,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import com.example.moviesviewer.R
+import kotlinx.android.synthetic.main.fragment_movies.*
+import org.koin.android.viewmodel.ext.android.viewModel
 
 class MoviesFragment : Fragment() {
+
+    private val moviesViewModel: MoviesViewModel by viewModel()
+
+    private val adapter: MoviesAdapter = MoviesAdapter()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View = inflater.inflate(R.layout.fragment_movies, container, false)
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        recyclerView.adapter = adapter
+        moviesViewModel.items.observe(viewLifecycleOwner, Observer(adapter::submitList))
+        moviesViewModel.loadTasks()
+    }
 }
