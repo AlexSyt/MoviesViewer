@@ -8,6 +8,10 @@ class MovieDtoToMovieMapper : Mapper<MovieDto, Movie> {
 
     override fun map(item: MovieDto): Movie =
         with(item) {
-            Movie(id, title, description, posterPath)
+            Movie(id, title, description, "$BASE_URL/$posterPath")
         }
+
+    companion object {
+        private const val BASE_URL = "https://image.tmdb.org/t/p/w185"
+    }
 }
