@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.core.common.Result
 import com.example.core.domain.interactor.GetMoviesUseCase
 import com.example.core.domain.model.Movie
+import com.example.moviesviewer.framework.Event
 import kotlinx.coroutines.launch
 
 class MoviesViewModel(
@@ -22,6 +23,9 @@ class MoviesViewModel(
     private val _loadingError = MutableLiveData<String?>()
     val loadingError: LiveData<String?> = _loadingError
 
+    private val _shareMovieEvent = MutableLiveData<Event<String>>()
+    val shareMovieEvent: LiveData<Event<String>> = _shareMovieEvent
+
     fun loadTasks(forceUpdate: Boolean = false) {
         _dataLoading.value = true
         viewModelScope.launch {
@@ -34,5 +38,14 @@ class MoviesViewModel(
             }
             _dataLoading.value = false
         }
+    }
+
+    fun onShareClicked(id: Int) {
+        _shareMovieEvent.value = Event("$SHARE_BASE_URL/$id")
+    }
+
+    companion object {
+
+        private const val SHARE_BASE_URL: String = "https://www.themoviedb.org/movie"
     }
 }

@@ -3,6 +3,7 @@ package com.example.moviesviewer.presentation
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
@@ -13,19 +14,28 @@ import com.example.core.domain.model.Movie
 import com.example.moviesviewer.R
 import kotlinx.android.synthetic.main.item_movie.view.*
 
-class MoviesAdapter : ListAdapter<Movie, MoviesAdapter.ViewHolder>(MovieDiffCallback()) {
+class MoviesAdapter(
+    private val shareAction: (Int) -> Unit
+) : ListAdapter<Movie, MoviesAdapter.ViewHolder>(MovieDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-        ViewHolder.from(parent)
+        ViewHolder.from(parent).apply {
+            shareBtn.setOnClickListener {
+                if (adapterPosition != RecyclerView.NO_POSITION) {
+                    shareAction(getItem(adapterPosition).id)
+                }
+            }
+        }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) =
         holder.bind(getItem(position))
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
+        val shareBtn: Button = itemView.shareBtn
         private val posterIv: ImageView = itemView.posterImageView
         private val titleTv: TextView = itemView.titleTextView
-        private val descriptionIv = itemView.descriptionTextView
+        private val descriptionIv: TextView = itemView.descriptionTextView
 
         fun bind(movie: Movie) {
             movie.posterPath?.let(posterIv::loadImage)

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">MoviesViewer</string>
+    <string name="share">Share</string>
+    <string name="share_movie_link">Share movie link</string>
 </resources>
