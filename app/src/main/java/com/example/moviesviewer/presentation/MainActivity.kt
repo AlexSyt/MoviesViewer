@@ -1,7 +1,7 @@
 package com.example.moviesviewer.presentation
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.example.moviesviewer.R
 
 class MainActivity : AppCompatActivity() {
