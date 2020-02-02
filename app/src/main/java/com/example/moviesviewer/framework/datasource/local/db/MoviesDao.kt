@@ -9,6 +9,9 @@ interface MoviesDao {
     @Query("SELECT * FROM movies")
     suspend fun getMovies(): List<MovieCachedDto>
 
+    @Query("SELECT id FROM movies WHERE bookmarked = 1")
+    suspend fun getBookmarkedIds(): List<Int>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMovie(movie: MovieCachedDto)
 

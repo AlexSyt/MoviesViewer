@@ -48,8 +48,9 @@ class MoviesRepositoryImpl(
     ): Result<List<Movie>> {
         val remoteResult = moviesRemoteDataSource.getMovies(releaseDateGte, releaseDateLte)
         if (remoteResult is Success) {
-            // TODO: update bookmarks
-            return remoteResult.also { refreshLocalDataSource(it.data) }
+            val movies = updateBookmarks(remoteResult.data)
+            refreshLocalDataSource(movies)
+            return Success(movies)
         } else if (forceUpdate) {
             return Result.Error(Exception("Can't force refresh: remote data source is unavailable"))
         }
@@ -60,6 +61,20 @@ class MoviesRepositoryImpl(
         } else {
             Result.Error(Exception("Can't refresh: all data sources is unavailable"))
         }
+    }
+
+    private suspend fun updateBookmarks(remoteMovies: List<Movie>): List<Movie> {
+        val bookmarkedIds = moviesLocalDataSource.getBookmarkedIds()
+        if (bookmarkedIds.isNotEmpty()) {
+            return remoteMovies.map {
+                if (bookmarkedIds.contains(it.id)) {
+                    it.copy(bookmarked = true)
+                } else {
+                    it
+                }
+            }
+        }
+        return remoteMovies
     }
 
     private suspend fun refreshLocalDataSource(movies: List<Movie>) {

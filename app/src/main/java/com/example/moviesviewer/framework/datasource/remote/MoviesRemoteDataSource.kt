@@ -26,6 +26,8 @@ class MoviesRemoteDataSource(
             Result.Error(exception)
         }
 
+    override suspend fun getBookmarkedIds(): Set<Int> = emptySet()
+
     override suspend fun saveMovie(movie: Movie) = Unit
 
     override suspend fun updateMovie(movie: Movie) = Unit
