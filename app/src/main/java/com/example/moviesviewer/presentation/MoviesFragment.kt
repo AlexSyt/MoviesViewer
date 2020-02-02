@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.example.moviesviewer.R
 import com.example.moviesviewer.framework.EventObserver
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_movies.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -34,6 +35,7 @@ class MoviesFragment : Fragment() {
             items.observe(viewLifecycleOwner, Observer(adapter::submitList))
             dataLoading.observe(viewLifecycleOwner, Observer(swipeRefreshLayout::setRefreshing))
             shareMovieEvent.observe(viewLifecycleOwner, EventObserver(::shareUrl))
+            loadingError.observe(viewLifecycleOwner, EventObserver(::handleError))
             loadTasks()
         }
     }
@@ -48,6 +50,12 @@ class MoviesFragment : Fragment() {
             if (intent.resolveActivity(pm) != null) {
                 startActivity(intent)
             }
+        }
+    }
+
+    private fun handleError(message: String?) {
+        if (message != null) {
+            view?.let { Snackbar.make(it, message, Snackbar.LENGTH_LONG).show() }
         }
     }
 }

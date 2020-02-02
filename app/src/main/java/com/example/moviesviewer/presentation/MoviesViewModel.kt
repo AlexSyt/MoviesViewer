@@ -20,8 +20,8 @@ class MoviesViewModel(
     private val _dataLoading = MutableLiveData<Boolean>()
     val dataLoading: LiveData<Boolean> = _dataLoading
 
-    private val _loadingError = MutableLiveData<String?>()
-    val loadingError: LiveData<String?> = _loadingError
+    private val _loadingError = MutableLiveData<Event<String?>>()
+    val loadingError: LiveData<Event<String?>> = _loadingError
 
     private val _shareMovieEvent = MutableLiveData<Event<String>>()
     val shareMovieEvent: LiveData<Event<String>> = _shareMovieEvent
@@ -31,10 +31,9 @@ class MoviesViewModel(
         viewModelScope.launch {
             val moviesResult = getMoviesUseCase("2019-09-15", "2019-10-22", forceUpdate)
             if (moviesResult is Result.Success) {
-                _loadingError.value = null
                 _items.value = moviesResult.data
             } else if (moviesResult is Result.Error) {
-                _loadingError.value = moviesResult.exception.message
+                _loadingError.value = Event(moviesResult.exception.message)
             }
             _dataLoading.value = false
         }
