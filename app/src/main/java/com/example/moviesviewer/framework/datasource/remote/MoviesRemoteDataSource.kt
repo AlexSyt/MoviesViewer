@@ -25,4 +25,8 @@ class MoviesRemoteDataSource(
         } catch (exception: Exception) {
             Result.Error(exception)
         }
+
+    override suspend fun saveMovie(movie: Movie) = Unit
+
+    override suspend fun removeAllMovies() = Unit
 }

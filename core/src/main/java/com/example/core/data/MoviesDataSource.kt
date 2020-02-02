@@ -6,4 +6,8 @@ import com.example.core.domain.model.Movie
 interface MoviesDataSource {
 
     suspend fun getMovies(releaseDateGte: String, releaseDateLte: String): Result<List<Movie>>
+
+    suspend fun saveMovie(movie: Movie)
+
+    suspend fun removeAllMovies()
 }
