@@ -10,4 +10,6 @@ interface MoviesRepository {
         releaseDateLte: String,
         forceUpdate: Boolean = false
     ): Result<List<Movie>>
+
+    suspend fun bookmarkMovie(id: Int)
 }

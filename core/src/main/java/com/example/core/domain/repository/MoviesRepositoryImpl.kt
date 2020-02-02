@@ -7,6 +7,8 @@ import com.example.core.domain.model.Movie
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 
 class MoviesRepositoryImpl(
     private val moviesRemoteDataSource: MoviesDataSource,
@@ -14,7 +16,7 @@ class MoviesRepositoryImpl(
 ) : MoviesRepository {
 
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
-    private val cachedMovies: MutableList<Movie> = ArrayList()
+    private val cachedMovies: ConcurrentMap<Int, Movie> = ConcurrentHashMap()
 
     override suspend fun getMovies(
         releaseDateGte: String,
@@ -23,13 +25,21 @@ class MoviesRepositoryImpl(
     ): Result<List<Movie>> =
         withContext(ioDispatcher) {
             when {
-                !forceUpdate && cachedMovies.isNotEmpty() -> Success(cachedMovies)
+                !forceUpdate && cachedMovies.isNotEmpty() -> Success(cachedMovies.values.toList())
                 else -> fetchMovies(releaseDateGte, releaseDateLte, forceUpdate)
                     .also { result ->
                         (result as? Success)?.let { refreshCache(it.data) }
                     }
             }
         }
+
+    override suspend fun bookmarkMovie(id: Int) {
+        cachedMovies[id]?.let { movie ->
+            val updated = movie.copy(bookmarked = !movie.bookmarked)
+            cachedMovies[id] = updated
+            moviesLocalDataSource.updateMovie(updated)
+        }
+    }
 
     private suspend fun fetchMovies(
         releaseDateGte: String,
@@ -38,6 +48,7 @@ class MoviesRepositoryImpl(
     ): Result<List<Movie>> {
         val remoteResult = moviesRemoteDataSource.getMovies(releaseDateGte, releaseDateLte)
         if (remoteResult is Success) {
+            // TODO: update bookmarks
             return remoteResult.also { refreshLocalDataSource(it.data) }
         } else if (forceUpdate) {
             return Result.Error(Exception("Can't force refresh: remote data source is unavailable"))
@@ -58,6 +69,6 @@ class MoviesRepositoryImpl(
 
     private fun refreshCache(movies: List<Movie>) {
         cachedMovies.clear()
-        cachedMovies.addAll(movies)
+        movies.forEach { cachedMovies[it.id] = it }
     }
 }
