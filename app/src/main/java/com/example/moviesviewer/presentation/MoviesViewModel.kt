@@ -45,11 +45,12 @@ class MoviesViewModel(
         _shareMovieEvent.value = Event("$SHARE_BASE_URL/$id")
     }
 
-    fun onBookmarkClicked(id: Int) =
+    fun onBookmarkClicked(id: Int) {
         viewModelScope.launch {
             bookmarkMovieUseCase(id)
             loadTasks()
         }
+    }
 
     companion object {
 
