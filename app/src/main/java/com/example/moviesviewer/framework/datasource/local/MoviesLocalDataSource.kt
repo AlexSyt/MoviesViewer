@@ -29,5 +29,8 @@ class MoviesLocalDataSource(
     override suspend fun saveMovie(movie: Movie) =
         moviesDao.insertMovie(movieToCachedMovie.map(movie))
 
+    override suspend fun updateMovie(movie: Movie) =
+        moviesDao.updateMovie(movieToCachedMovie.map(movie))
+
     override suspend fun removeAllMovies() = moviesDao.deleteMovies()
 }

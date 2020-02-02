@@ -1,9 +1,6 @@
 package com.example.moviesviewer.framework.datasource.local.db
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.example.moviesviewer.framework.datasource.local.dto.MovieCachedDto
 
 @Dao
@@ -14,6 +11,9 @@ interface MoviesDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMovie(movie: MovieCachedDto)
+
+    @Update
+    suspend fun updateMovie(movie: MovieCachedDto)
 
     @Query("DELETE FROM movies")
     suspend fun deleteMovies()

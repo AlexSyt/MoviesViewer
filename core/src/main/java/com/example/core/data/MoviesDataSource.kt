@@ -9,5 +9,7 @@ interface MoviesDataSource {
 
     suspend fun saveMovie(movie: Movie)
 
+    suspend fun updateMovie(movie: Movie)
+
     suspend fun removeAllMovies()
 }
