@@ -8,7 +8,7 @@ class MovieDtoToMovieMapper : Mapper<MovieDto, Movie> {
 
     override fun map(item: MovieDto): Movie =
         with(item) {
-            Movie(id, title, description, "$BASE_URL/$posterPath")
+            Movie(id, title, description, "$BASE_URL/$posterPath", false)
         }
 
     companion object {

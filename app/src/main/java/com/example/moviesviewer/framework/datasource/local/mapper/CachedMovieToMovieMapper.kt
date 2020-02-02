@@ -8,6 +8,6 @@ class CachedMovieToMovieMapper : Mapper<MovieCachedDto, Movie> {
 
     override fun map(item: MovieCachedDto): Movie =
         with(item) {
-            Movie(id, title, description, posterPath)
+            Movie(id, title, description, posterPath, bookmarked)
         }
 }
