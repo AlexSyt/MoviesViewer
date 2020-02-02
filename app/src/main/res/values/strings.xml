@@ -2,4 +2,6 @@
     <string name="app_name">MoviesViewer</string>
     <string name="share">Share</string>
     <string name="share_movie_link">Share movie link</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="unbookmark">Unbookmark</string>
 </resources>

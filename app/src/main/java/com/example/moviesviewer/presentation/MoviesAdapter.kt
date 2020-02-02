@@ -15,16 +15,23 @@ import com.example.moviesviewer.R
 import kotlinx.android.synthetic.main.item_movie.view.*
 
 class MoviesAdapter(
-    private val shareAction: (Int) -> Unit
+    private val shareAction: (Int) -> Unit,
+    private val bookmarkAction: (Int) -> Unit
 ) : ListAdapter<Movie, MoviesAdapter.ViewHolder>(MovieDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         ViewHolder.from(parent).apply {
-            shareBtn.setOnClickListener {
+            val listener = View.OnClickListener { view ->
                 if (adapterPosition != RecyclerView.NO_POSITION) {
-                    shareAction(getItem(adapterPosition).id)
+                    val movieId = getItem(adapterPosition).id
+                    when (view.id) {
+                        R.id.shareBtn -> shareAction(movieId)
+                        R.id.bookmarkBtn -> bookmarkAction(movieId)
+                    }
                 }
             }
+            shareBtn.setOnClickListener(listener)
+            bookmarkBtn.setOnClickListener(listener)
         }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) =
@@ -33,6 +40,7 @@ class MoviesAdapter(
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         val shareBtn: Button = itemView.shareBtn
+        val bookmarkBtn: Button = itemView.bookmarkBtn
         private val posterIv: ImageView = itemView.posterImageView
         private val titleTv: TextView = itemView.titleTextView
         private val descriptionIv: TextView = itemView.descriptionTextView
@@ -41,6 +49,7 @@ class MoviesAdapter(
             movie.posterPath?.let(posterIv::loadImage)
             titleTv.text = movie.title
             descriptionIv.text = movie.description
+            bookmarkBtn.setText(if (movie.bookmarked) R.string.unbookmark else R.string.bookmark)
         }
 
         companion object {

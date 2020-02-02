@@ -27,7 +27,7 @@ class MoviesFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        adapter = MoviesAdapter(moviesViewModel::onShareClicked)
+        adapter = MoviesAdapter(moviesViewModel::onShareClicked, moviesViewModel::onBookmarkClicked)
         recyclerView.adapter = adapter
         swipeRefreshLayout.setOnRefreshListener { moviesViewModel.loadTasks(true) }
 

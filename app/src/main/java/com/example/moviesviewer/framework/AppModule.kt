@@ -3,6 +3,7 @@ package com.example.moviesviewer.framework
 import android.content.Context
 import androidx.room.Room
 import com.example.core.data.MoviesDataSource
+import com.example.core.domain.interactor.BookmarkMovieUseCase
 import com.example.core.domain.interactor.GetMoviesUseCase
 import com.example.core.domain.repository.MoviesRepository
 import com.example.core.domain.repository.MoviesRepositoryImpl
@@ -42,9 +43,10 @@ val appModule = module {
 
     // Interactor
     single { GetMoviesUseCase(get()) }
+    single { BookmarkMovieUseCase(get()) }
 
     // ViewModel
-    viewModel { MoviesViewModel(get()) }
+    viewModel { MoviesViewModel(get(), get()) }
 }
 
 fun provideRetrofit(): Retrofit =
