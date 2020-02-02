@@ -9,7 +9,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class MoviesRepositoryImpl(
-    private val moviesRemoteDataSource: MoviesDataSource
+    private val moviesRemoteDataSource: MoviesDataSource,
+    private val moviesLocalDataSource: MoviesDataSource
 ) : MoviesRepository {
 
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -23,16 +24,37 @@ class MoviesRepositoryImpl(
         withContext(ioDispatcher) {
             when {
                 !forceUpdate && cachedMovies.isNotEmpty() -> Success(cachedMovies)
-                else -> fetchMovies(releaseDateGte, releaseDateLte).also { result ->
-                    (result as? Success)?.let { refreshCache(it.data) }
-                }
+                else -> fetchMovies(releaseDateGte, releaseDateLte, forceUpdate)
+                    .also { result ->
+                        (result as? Success)?.let { refreshCache(it.data) }
+                    }
             }
         }
 
     private suspend fun fetchMovies(
         releaseDateGte: String,
-        releaseDateLte: String
-    ): Result<List<Movie>> = moviesRemoteDataSource.getMovies(releaseDateGte, releaseDateLte)
+        releaseDateLte: String,
+        forceUpdate: Boolean
+    ): Result<List<Movie>> {
+        val remoteResult = moviesRemoteDataSource.getMovies(releaseDateGte, releaseDateLte)
+        if (remoteResult is Success) {
+            return remoteResult.also { refreshLocalDataSource(it.data) }
+        } else if (forceUpdate) {
+            return Result.Error(Exception("Can't force refresh: remote data source is unavailable"))
+        }
+
+        val localResult = moviesLocalDataSource.getMovies(releaseDateGte, releaseDateLte)
+        return if (localResult is Success) {
+            localResult
+        } else {
+            Result.Error(Exception("Can't refresh: all data sources is unavailable"))
+        }
+    }
+
+    private suspend fun refreshLocalDataSource(movies: List<Movie>) {
+        moviesLocalDataSource.removeAllMovies()
+        movies.forEach { moviesLocalDataSource.saveMovie(it) }
+    }
 
     private fun refreshCache(movies: List<Movie>) {
         cachedMovies.clear()
