@@ -12,10 +12,10 @@ import java.util.concurrent.ConcurrentMap
 
 class MoviesRepositoryImpl(
     private val moviesRemoteDataSource: MoviesDataSource,
-    private val moviesLocalDataSource: MoviesDataSource
+    private val moviesLocalDataSource: MoviesDataSource,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : MoviesRepository {
 
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
     private val cachedMovies: ConcurrentMap<Int, Movie> = ConcurrentHashMap()
 
     override suspend fun getMovies(
@@ -23,7 +23,7 @@ class MoviesRepositoryImpl(
         releaseDateLte: String,
         forceUpdate: Boolean
     ): Result<List<Movie>> =
-        withContext(ioDispatcher) {
+        withContext(dispatcher) {
             when {
                 !forceUpdate && cachedMovies.isNotEmpty() -> Success(cachedMovies.values.toList())
                 else -> fetchMovies(releaseDateGte, releaseDateLte, forceUpdate)
