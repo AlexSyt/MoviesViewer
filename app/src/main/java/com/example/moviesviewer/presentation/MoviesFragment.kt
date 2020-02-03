@@ -29,14 +29,14 @@ class MoviesFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         adapter = MoviesAdapter(moviesViewModel::onShareClicked, moviesViewModel::onBookmarkClicked)
         recyclerView.adapter = adapter
-        swipeRefreshLayout.setOnRefreshListener { moviesViewModel.loadTasks(true) }
+        swipeRefreshLayout.setOnRefreshListener { moviesViewModel.loadMovies(true) }
 
         moviesViewModel.apply {
             items.observe(viewLifecycleOwner, Observer(adapter::submitList))
             dataLoading.observe(viewLifecycleOwner, Observer(swipeRefreshLayout::setRefreshing))
             shareMovieEvent.observe(viewLifecycleOwner, EventObserver(::shareUrl))
             loadingError.observe(viewLifecycleOwner, EventObserver(::handleError))
-            loadTasks()
+            loadMovies()
         }
     }
 

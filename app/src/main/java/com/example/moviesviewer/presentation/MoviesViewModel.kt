@@ -28,7 +28,7 @@ class MoviesViewModel(
     private val _shareMovieEvent = MutableLiveData<Event<String>>()
     val shareMovieEvent: LiveData<Event<String>> = _shareMovieEvent
 
-    fun loadTasks(forceUpdate: Boolean = false) {
+    fun loadMovies(forceUpdate: Boolean = false) {
         _dataLoading.value = true
         viewModelScope.launch {
             val moviesResult = getMoviesUseCase("2019-09-15", "2019-10-22", forceUpdate)
@@ -48,7 +48,7 @@ class MoviesViewModel(
     fun onBookmarkClicked(id: Int) {
         viewModelScope.launch {
             bookmarkMovieUseCase(id)
-            loadTasks()
+            loadMovies()
         }
     }
 
