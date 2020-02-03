@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.core.domain.model.Movie
 import com.example.moviesviewer.R
+import com.example.moviesviewer.presentation.MovieDiffCallback.Payload
 import kotlinx.android.synthetic.main.item_movie.view.*
 
 class MoviesAdapter(
@@ -37,6 +38,21 @@ class MoviesAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) =
         holder.bind(getItem(position))
 
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) =
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads)
+        } else {
+            val movie = getItem(position)
+            payloads.forEach {
+                if (it is Payload) {
+                    if (it.titleChanged) holder.bindTitle(movie)
+                    if (it.descriptionChanged) holder.bindDescription(movie)
+                    if (it.posterPathChanged) holder.bindPoster(movie)
+                    if (it.bookmarkChanged) holder.bindBookmarkBtn(movie)
+                }
+            }
+        }
+
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         val shareBtn: Button = itemView.shareBtn
@@ -46,11 +62,24 @@ class MoviesAdapter(
         private val descriptionIv: TextView = itemView.descriptionTextView
 
         fun bind(movie: Movie) {
-            movie.posterPath?.let(posterIv::loadImage)
-            titleTv.text = movie.title
-            descriptionIv.text = movie.description
-            bookmarkBtn.setText(if (movie.bookmarked) R.string.unbookmark else R.string.bookmark)
+            bindPoster(movie)
+            bindTitle(movie)
+            bindDescription(movie)
+            bindBookmarkBtn(movie)
         }
+
+        fun bindPoster(movie: Movie) = movie.posterPath?.let(posterIv::loadImage)
+
+        fun bindTitle(movie: Movie) {
+            titleTv.text = movie.title
+        }
+
+        fun bindDescription(movie: Movie) {
+            descriptionIv.text = movie.description
+        }
+
+        fun bindBookmarkBtn(movie: Movie) =
+            bookmarkBtn.setText(if (movie.bookmarked) R.string.unbookmark else R.string.bookmark)
 
         companion object {
 
@@ -68,6 +97,21 @@ class MovieDiffCallback : DiffUtil.ItemCallback<Movie>() {
     override fun areItemsTheSame(oldItem: Movie, newItem: Movie): Boolean = oldItem.id == newItem.id
 
     override fun areContentsTheSame(oldItem: Movie, newItem: Movie): Boolean = oldItem == newItem
+
+    override fun getChangePayload(oldItem: Movie, newItem: Movie): Any? =
+        Payload(
+            oldItem.title != newItem.title,
+            oldItem.description != newItem.description,
+            oldItem.posterPath != newItem.posterPath,
+            oldItem.bookmarked != newItem.bookmarked
+        )
+
+    class Payload(
+        val titleChanged: Boolean,
+        val descriptionChanged: Boolean,
+        val posterPathChanged: Boolean,
+        val bookmarkChanged: Boolean
+    )
 }
 
 private fun ImageView.loadImage(path: String) =
