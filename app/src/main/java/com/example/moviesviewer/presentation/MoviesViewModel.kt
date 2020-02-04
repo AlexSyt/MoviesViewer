@@ -1,5 +1,6 @@
 package com.example.moviesviewer.presentation
 
+import android.annotation.SuppressLint
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,6 +11,9 @@ import com.example.core.domain.interactor.GetMoviesUseCase
 import com.example.core.domain.model.Movie
 import com.example.moviesviewer.framework.Event
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 class MoviesViewModel(
     private val getMoviesUseCase: GetMoviesUseCase,
@@ -31,7 +35,8 @@ class MoviesViewModel(
     fun loadMovies(forceUpdate: Boolean = false) {
         _dataLoading.value = true
         viewModelScope.launch {
-            val moviesResult = getMoviesUseCase("2019-09-15", "2019-10-22", forceUpdate)
+            val (dateGte, dateLte) = getDateFrame()
+            val moviesResult = getMoviesUseCase(dateGte, dateLte, forceUpdate)
             if (moviesResult is Result.Success) {
                 _items.value = moviesResult.data.sortedBy { it.title }
             } else if (moviesResult is Result.Error) {
@@ -52,8 +57,18 @@ class MoviesViewModel(
         }
     }
 
+    @SuppressLint("SimpleDateFormat")
+    private fun getDateFrame(): Pair<String, String> {
+        val endTime = System.currentTimeMillis()
+        val startTime = endTime - TimeUnit.DAYS.toMillis(DAYS_PERIOD)
+        val formatter = SimpleDateFormat(DATE_FORMAT)
+        return Pair(formatter.format(Date(startTime)), formatter.format(Date(endTime)))
+    }
+
     companion object {
 
         private const val SHARE_BASE_URL: String = "https://www.themoviedb.org/movie"
+        private const val DAYS_PERIOD: Long = 14
+        private const val DATE_FORMAT: String = "yyyy-MM-dd"
     }
 }
