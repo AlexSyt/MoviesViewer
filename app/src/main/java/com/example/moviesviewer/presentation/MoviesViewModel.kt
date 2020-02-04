@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.core.common.Result
+import com.example.core.common.Result.Success
 import com.example.core.domain.interactor.BookmarkMovieUseCase
 import com.example.core.domain.interactor.GetMoviesUseCase
 import com.example.core.domain.model.Movie
@@ -20,14 +21,11 @@ class MoviesViewModel(
     private val bookmarkMovieUseCase: BookmarkMovieUseCase
 ) : ViewModel() {
 
-    private val _items = MutableLiveData<List<Movie>>().apply { value = emptyList() }
-    val items: LiveData<List<Movie>> = _items
+    private val _resultEvent = MutableLiveData<Event<Result<List<Movie>>>>()
+    val resultEvent: LiveData<Event<Result<List<Movie>>>> = _resultEvent
 
     private val _dataLoading = MutableLiveData<Boolean>()
     val dataLoading: LiveData<Boolean> = _dataLoading
-
-    private val _loadingError = MutableLiveData<Event<String?>>()
-    val loadingError: LiveData<Event<String?>> = _loadingError
 
     private val _shareMovieEvent = MutableLiveData<Event<String>>()
     val shareMovieEvent: LiveData<Event<String>> = _shareMovieEvent
@@ -37,10 +35,10 @@ class MoviesViewModel(
         viewModelScope.launch {
             val (dateGte, dateLte) = getDateFrame()
             val moviesResult = getMoviesUseCase(dateGte, dateLte, forceUpdate)
-            if (moviesResult is Result.Success) {
-                _items.value = moviesResult.data.sortedBy { it.title }
+            if (moviesResult is Success) {
+                _resultEvent.value = Event(Success(moviesResult.data.sortedBy(Movie::title)))
             } else if (moviesResult is Result.Error) {
-                _loadingError.value = Event(moviesResult.exception.message)
+                _resultEvent.value = Event(moviesResult)
             }
             _dataLoading.value = false
         }

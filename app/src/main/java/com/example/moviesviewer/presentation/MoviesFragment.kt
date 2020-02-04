@@ -7,6 +7,10 @@ import android.view.ViewGroup
 import androidx.core.app.ShareCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import com.example.core.common.Result
+import com.example.core.common.Result.Error
+import com.example.core.common.Result.Success
+import com.example.core.domain.model.Movie
 import com.example.moviesviewer.R
 import com.example.moviesviewer.framework.EventObserver
 import com.google.android.material.snackbar.Snackbar
@@ -32,11 +36,18 @@ class MoviesFragment : Fragment() {
         swipeRefreshLayout.setOnRefreshListener { moviesViewModel.loadMovies(true) }
 
         moviesViewModel.apply {
-            items.observe(viewLifecycleOwner, Observer(adapter::submitList))
             dataLoading.observe(viewLifecycleOwner, Observer(swipeRefreshLayout::setRefreshing))
             shareMovieEvent.observe(viewLifecycleOwner, EventObserver(::shareUrl))
-            loadingError.observe(viewLifecycleOwner, EventObserver(::handleError))
+            resultEvent.observe(viewLifecycleOwner, EventObserver(::handleResult))
             loadMovies()
+        }
+    }
+
+    private fun handleResult(result: Result<List<Movie>>) {
+        if (result is Success) {
+            adapter.submitList(result.data)
+        } else if (result is Error) {
+            handleError(result.exception.message)
         }
     }
 
