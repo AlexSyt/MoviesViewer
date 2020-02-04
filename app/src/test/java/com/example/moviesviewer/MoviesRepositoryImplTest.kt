@@ -145,6 +145,19 @@ class MoviesRepositoryImplTest {
         assertThat(refreshedMovies.find { it.id == bookmarkedId }?.bookmarked == true)
     }
 
+    @Test
+    fun getBookmarkedMovies_moviesAreCorrect() = runBlockingTest {
+        val movies = (moviesRepository.getMovies() as Success).data
+        val bookmarkedMovie = movies.first().copy(bookmarked = true)
+        moviesRepository.bookmarkMovie(bookmarkedMovie.id)
+
+        // Load bookmarked movies
+        val bookmarkedMovies = (moviesRepository.getBookmarkedMovies() as Success).data
+
+        // Only previously bookmarked movies should be bookmarked
+        assertThat(bookmarkedMovies).isEqualTo(listOf(bookmarkedMovie))
+    }
+
     private suspend fun MoviesRepository.getMovies(
         forceUpdate: Boolean = false
     ): Result<List<Movie>> = getMovies("", "", forceUpdate)

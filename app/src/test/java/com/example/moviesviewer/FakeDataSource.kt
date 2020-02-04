@@ -14,6 +14,11 @@ class FakeDataSource(var movies: MutableList<Movie>? = mutableListOf()) : Movies
         return Result.Error(Exception("Movies not found"))
     }
 
+    override suspend fun getBookmarkedMovies(): Result<List<Movie>> {
+        movies?.let { return Result.Success(it.filter(Movie::bookmarked)) }
+        return Result.Error(Exception("Movies not found"))
+    }
+
     override suspend fun getBookmarkedIds(): Set<Int> =
         movies?.asSequence()
             ?.filter(Movie::bookmarked)
