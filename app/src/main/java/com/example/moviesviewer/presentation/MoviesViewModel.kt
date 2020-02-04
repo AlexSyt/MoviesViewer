@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.core.common.Result
+import com.example.core.common.Result.Loading
 import com.example.core.common.Result.Success
 import com.example.core.domain.interactor.BookmarkMovieUseCase
 import com.example.core.domain.interactor.GetMoviesUseCase
@@ -16,31 +17,28 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
+private typealias MoviesResult = Result<List<Movie>>
+
 class MoviesViewModel(
     private val getMoviesUseCase: GetMoviesUseCase,
     private val bookmarkMovieUseCase: BookmarkMovieUseCase
 ) : ViewModel() {
 
-    private val _resultEvent = MutableLiveData<Event<Result<List<Movie>>>>()
-    val resultEvent: LiveData<Event<Result<List<Movie>>>> = _resultEvent
-
-    private val _dataLoading = MutableLiveData<Boolean>()
-    val dataLoading: LiveData<Boolean> = _dataLoading
+    private val _resultEvent = MutableLiveData<Event<MoviesResult>>()
+    val resultEvent: LiveData<Event<MoviesResult>> = _resultEvent
 
     private val _shareMovieEvent = MutableLiveData<Event<String>>()
     val shareMovieEvent: LiveData<Event<String>> = _shareMovieEvent
 
     fun loadMovies(forceUpdate: Boolean = false) {
-        _dataLoading.value = true
+        _resultEvent.value = Event(Loading)
         viewModelScope.launch {
             val (dateGte, dateLte) = getDateFrame()
-            val moviesResult = getMoviesUseCase(dateGte, dateLte, forceUpdate)
-            if (moviesResult is Success) {
-                _resultEvent.value = Event(Success(moviesResult.data.sortedBy(Movie::title)))
-            } else if (moviesResult is Result.Error) {
-                _resultEvent.value = Event(moviesResult)
+            val result = when (val moviesResult = getMoviesUseCase(dateGte, dateLte, forceUpdate)) {
+                is Success -> Success(moviesResult.data.sortedBy(Movie::title))
+                else -> moviesResult
             }
-            _dataLoading.value = false
+            _resultEvent.value = Event(result)
         }
     }
 

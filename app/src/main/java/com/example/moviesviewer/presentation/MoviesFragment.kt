@@ -6,10 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ShareCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import com.example.core.common.Result
-import com.example.core.common.Result.Error
-import com.example.core.common.Result.Success
+import com.example.core.common.Result.*
 import com.example.core.domain.model.Movie
 import com.example.moviesviewer.R
 import com.example.moviesviewer.framework.EventObserver
@@ -36,7 +34,6 @@ class MoviesFragment : Fragment() {
         swipeRefreshLayout.setOnRefreshListener { moviesViewModel.loadMovies(true) }
 
         moviesViewModel.apply {
-            dataLoading.observe(viewLifecycleOwner, Observer(swipeRefreshLayout::setRefreshing))
             shareMovieEvent.observe(viewLifecycleOwner, EventObserver(::shareUrl))
             resultEvent.observe(viewLifecycleOwner, EventObserver(::handleResult))
             loadMovies()
@@ -44,10 +41,10 @@ class MoviesFragment : Fragment() {
     }
 
     private fun handleResult(result: Result<List<Movie>>) {
-        if (result is Success) {
-            adapter.submitList(result.data)
-        } else if (result is Error) {
-            handleError(result.exception.message)
+        swipeRefreshLayout.isRefreshing = result is Loading
+        when (result) {
+            is Success -> adapter.submitList(result.data)
+            is Error -> handleError(result.exception.message)
         }
     }
 
