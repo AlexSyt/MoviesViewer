@@ -11,5 +11,7 @@ interface MoviesRepository {
         forceUpdate: Boolean = false
     ): Result<List<Movie>>
 
+    suspend fun getBookmarkedMovies(): Result<List<Movie>>
+
     suspend fun bookmarkMovie(id: Int)
 }

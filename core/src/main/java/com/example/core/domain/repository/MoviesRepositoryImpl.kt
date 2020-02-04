@@ -33,6 +33,11 @@ class MoviesRepositoryImpl(
             }
         }
 
+    override suspend fun getBookmarkedMovies(): Result<List<Movie>> =
+        withContext(dispatcher) {
+            moviesLocalDataSource.getBookmarkedMovies()
+        }
+
     override suspend fun bookmarkMovie(id: Int) {
         cachedMovies[id]?.let { movie ->
             val updated = movie.copy(bookmarked = !movie.bookmarked)

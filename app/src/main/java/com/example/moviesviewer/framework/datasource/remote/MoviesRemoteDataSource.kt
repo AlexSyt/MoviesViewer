@@ -2,6 +2,7 @@ package com.example.moviesviewer.framework.datasource.remote
 
 import com.example.core.common.Mapper
 import com.example.core.common.Result
+import com.example.core.common.Result.Success
 import com.example.core.data.MoviesDataSource
 import com.example.core.domain.model.Movie
 import com.example.moviesviewer.framework.datasource.remote.api.MoviesApi
@@ -21,10 +22,12 @@ class MoviesRemoteDataSource(
     ): Result<List<Movie>> =
         try {
             val moviesResponse = api.getMovies(apiKey, releaseDateGte, releaseDateLte)
-            Result.Success(moviesResponse.movies.map(mapper::map))
+            Success(moviesResponse.movies.map(mapper::map))
         } catch (exception: Exception) {
             Result.Error(exception)
         }
+
+    override suspend fun getBookmarkedMovies(): Result<List<Movie>> = Success(emptyList())
 
     override suspend fun getBookmarkedIds(): Set<Int> = emptySet()
 

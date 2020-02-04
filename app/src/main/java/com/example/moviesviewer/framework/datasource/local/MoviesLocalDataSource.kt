@@ -26,6 +26,13 @@ class MoviesLocalDataSource(
             Result.Error(exception)
         }
 
+    override suspend fun getBookmarkedMovies(): Result<List<Movie>> =
+        try {
+            Result.Success(moviesDao.getBookmarkedMovies().map(cachedMovieToMovie::map))
+        } catch (exception: Exception) {
+            Result.Error(exception)
+        }
+
     override suspend fun getBookmarkedIds(): Set<Int> = moviesDao.getBookmarkedIds().toSet()
 
     override suspend fun saveMovie(movie: Movie) =
