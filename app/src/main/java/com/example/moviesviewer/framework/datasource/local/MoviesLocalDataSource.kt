@@ -19,19 +19,10 @@ class MoviesLocalDataSource(
     override suspend fun getMovies(
         releaseDateGte: String,
         releaseDateLte: String
-    ): Result<List<Movie>> =
-        try {
-            Result.Success(moviesDao.getMovies().map(cachedMovieToMovie::map))
-        } catch (exception: Exception) {
-            Result.Error(exception)
-        }
+    ): Result<List<Movie>> = fetchMovies { moviesDao.getMovies() }
 
     override suspend fun getBookmarkedMovies(): Result<List<Movie>> =
-        try {
-            Result.Success(moviesDao.getBookmarkedMovies().map(cachedMovieToMovie::map))
-        } catch (exception: Exception) {
-            Result.Error(exception)
-        }
+        fetchMovies { moviesDao.getBookmarkedMovies() }
 
     override suspend fun getBookmarkedIds(): Set<Int> = moviesDao.getBookmarkedIds().toSet()
 
@@ -42,4 +33,13 @@ class MoviesLocalDataSource(
         moviesDao.updateMovie(movieToCachedMovie.map(movie))
 
     override suspend fun removeAllMovies() = moviesDao.deleteMovies()
+
+    private suspend fun fetchMovies(
+        action: suspend () -> List<MovieCachedDto>
+    ): Result<List<Movie>> =
+        try {
+            Result.Success(action().map(cachedMovieToMovie::map))
+        } catch (exception: Exception) {
+            Result.Error(exception)
+        }
 }
