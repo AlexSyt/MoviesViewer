@@ -4,4 +4,6 @@
     <string name="share_movie_link">Share movie link</string>
     <string name="bookmark">Bookmark</string>
     <string name="unbookmark">Unbookmark</string>
+    <string name="all_movies">All Movies</string>
+    <string name="bookmarked_movies">Bookmarked Movies</string>
 </resources>

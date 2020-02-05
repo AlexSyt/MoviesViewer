@@ -1,11 +1,13 @@
 package com.example.moviesviewer.presentation.main
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.moviesviewer.R
-import com.example.moviesviewer.presentation.movies.MoviesFragment
+import com.example.moviesviewer.presentation.movies.AllMoviesFragment
+import com.example.moviesviewer.presentation.movies.BookmarkedMoviesFragment
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.fragment_main.*
 
@@ -18,16 +20,23 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         pagerAdapter = MainPagerAdapter(this)
         viewPager.adapter = pagerAdapter
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = pagerAdapter.getTabTitle(position)
+            tab.text = context?.let { pagerAdapter.getTabTitle(it, position) }
         }.attach()
     }
 }
 
 class MainPagerAdapter(parent: Fragment) : FragmentStateAdapter(parent) {
 
-    override fun getItemCount(): Int = 2
+    private val fragments: List<Pair<Int, Class<out Fragment>>> = listOf(
+        R.string.all_movies to AllMoviesFragment::class.java,
+        R.string.bookmarked_movies to BookmarkedMoviesFragment::class.java
+    )
 
-    override fun createFragment(position: Int): Fragment = MoviesFragment.newInstance()
+    override fun getItemCount(): Int = fragments.size
 
-    fun getTabTitle(position: Int): String = "Tab $position"
+    override fun createFragment(position: Int): Fragment =
+        fragments[position].second.newInstance()
+
+    fun getTabTitle(context: Context, position: Int): String =
+        context.getString(fragments[position].first)
 }

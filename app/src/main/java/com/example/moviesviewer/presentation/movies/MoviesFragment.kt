@@ -3,32 +3,36 @@ package com.example.moviesviewer.presentation.movies
 import android.os.Bundle
 import androidx.core.app.ShareCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import com.example.core.common.Result
 import com.example.core.common.Result.*
 import com.example.core.domain.model.Movie
 import com.example.moviesviewer.R
+import com.example.moviesviewer.framework.Event
 import com.example.moviesviewer.framework.EventObserver
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_movies.*
-import org.koin.android.viewmodel.ext.android.viewModel
+import org.koin.android.viewmodel.ext.android.sharedViewModel
 
-class MoviesFragment : Fragment(R.layout.fragment_movies) {
+abstract class MoviesFragment : Fragment(R.layout.fragment_movies) {
 
-    private val moviesViewModel: MoviesViewModel by viewModel()
+    protected val moviesViewModel: MoviesViewModel by sharedViewModel()
 
     private lateinit var adapter: MoviesAdapter
+
+    protected abstract fun loadData(force: Boolean = false)
+
+    protected abstract fun getMoviesLiveData(): LiveData<Event<Result<List<Movie>>>>
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         adapter = MoviesAdapter(moviesViewModel::onShareClicked, moviesViewModel::onBookmarkClicked)
         recyclerView.adapter = adapter
-        swipeRefreshLayout.setOnRefreshListener { moviesViewModel.loadMovies(true) }
+        swipeRefreshLayout.setOnRefreshListener { loadData(true) }
 
-        moviesViewModel.apply {
-            shareMovieEvent.observe(viewLifecycleOwner, EventObserver(::shareUrl))
-            movies.observe(viewLifecycleOwner, EventObserver(::handleResult))
-            loadMovies()
-        }
+        moviesViewModel.shareMovieEvent.observe(viewLifecycleOwner, EventObserver(::shareUrl))
+        getMoviesLiveData().observe(viewLifecycleOwner, EventObserver(::handleResult))
+        loadData()
     }
 
     private fun handleResult(result: Result<List<Movie>>) {
@@ -56,10 +60,5 @@ class MoviesFragment : Fragment(R.layout.fragment_movies) {
         if (message != null) {
             view?.let { Snackbar.make(it, message, Snackbar.LENGTH_LONG).show() }
         }
-    }
-
-    companion object {
-
-        fun newInstance(): Fragment = MoviesFragment()
     }
 }
