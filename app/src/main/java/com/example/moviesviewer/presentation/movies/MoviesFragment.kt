@@ -26,7 +26,7 @@ class MoviesFragment : Fragment(R.layout.fragment_movies) {
 
         moviesViewModel.apply {
             shareMovieEvent.observe(viewLifecycleOwner, EventObserver(::shareUrl))
-            resultEvent.observe(viewLifecycleOwner, EventObserver(::handleResult))
+            movies.observe(viewLifecycleOwner, EventObserver(::handleResult))
             loadMovies()
         }
     }

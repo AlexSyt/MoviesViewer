@@ -9,6 +9,7 @@ import com.example.core.common.Result
 import com.example.core.common.Result.Loading
 import com.example.core.common.Result.Success
 import com.example.core.domain.interactor.BookmarkMovieUseCase
+import com.example.core.domain.interactor.GetBookmarkedMoviesUseCase
 import com.example.core.domain.interactor.GetMoviesUseCase
 import com.example.core.domain.model.Movie
 import com.example.moviesviewer.framework.Event
@@ -21,26 +22,26 @@ private typealias MoviesResult = Result<List<Movie>>
 
 class MoviesViewModel(
     private val getMoviesUseCase: GetMoviesUseCase,
+    private val getBookmarkedMoviesUseCase: GetBookmarkedMoviesUseCase,
     private val bookmarkMovieUseCase: BookmarkMovieUseCase
 ) : ViewModel() {
 
-    private val _resultEvent = MutableLiveData<Event<MoviesResult>>()
-    val resultEvent: LiveData<Event<MoviesResult>> = _resultEvent
+    private val _movies = MutableLiveData<Event<MoviesResult>>()
+    val movies: LiveData<Event<MoviesResult>> = _movies
+
+    private val _bookmarkedMovies = MutableLiveData<Event<MoviesResult>>()
+    val bookmarkedMovies: LiveData<Event<MoviesResult>> = _bookmarkedMovies
 
     private val _shareMovieEvent = MutableLiveData<Event<String>>()
     val shareMovieEvent: LiveData<Event<String>> = _shareMovieEvent
 
     fun loadMovies(forceUpdate: Boolean = false) {
-        _resultEvent.value = Event(Loading)
-        viewModelScope.launch {
-            val (dateGte, dateLte) = getDateFrame()
-            val result = when (val moviesResult = getMoviesUseCase(dateGte, dateLte, forceUpdate)) {
-                is Success -> Success(moviesResult.data.sortedBy(Movie::title))
-                else -> moviesResult
-            }
-            _resultEvent.value = Event(result)
-        }
+        val (dateGte, dateLte) = getDateFrame()
+        fetchMovies(_movies) { getMoviesUseCase(dateGte, dateLte, forceUpdate) }
     }
+
+    fun loadBookmarkedMovies() =
+        fetchMovies(_bookmarkedMovies) { getBookmarkedMoviesUseCase() }
 
     fun onShareClicked(id: Int) {
         _shareMovieEvent.value = Event("$SHARE_BASE_URL/$id")
@@ -50,6 +51,21 @@ class MoviesViewModel(
         viewModelScope.launch {
             bookmarkMovieUseCase(id)
             loadMovies()
+            loadBookmarkedMovies()
+        }
+    }
+
+    private fun fetchMovies(
+        receiver: MutableLiveData<Event<MoviesResult>>,
+        action: suspend () -> MoviesResult
+    ) {
+        receiver.value = Event(Loading)
+        viewModelScope.launch {
+            val result = when (val moviesResult = action()) {
+                is Success -> Success(moviesResult.data.sortedBy(Movie::title))
+                else -> moviesResult
+            }
+            receiver.value = Event(result)
         }
     }
 

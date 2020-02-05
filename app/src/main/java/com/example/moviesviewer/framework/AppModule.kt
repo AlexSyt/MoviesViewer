@@ -48,7 +48,7 @@ val appModule = module {
     single { BookmarkMovieUseCase(get()) }
 
     // ViewModel
-    viewModel { MoviesViewModel(get(), get()) }
+    viewModel { MoviesViewModel(get(), get(), get()) }
 }
 
 fun provideRetrofit(): Retrofit =
