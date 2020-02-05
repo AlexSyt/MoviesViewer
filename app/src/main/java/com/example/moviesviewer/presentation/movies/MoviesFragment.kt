@@ -1,9 +1,6 @@
 package com.example.moviesviewer.presentation.movies
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.core.app.ShareCompat
 import androidx.fragment.app.Fragment
 import com.example.core.common.Result
@@ -15,17 +12,11 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_movies.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
-class MoviesFragment : Fragment() {
+class MoviesFragment : Fragment(R.layout.fragment_movies) {
 
     private val moviesViewModel: MoviesViewModel by viewModel()
 
     private lateinit var adapter: MoviesAdapter
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_movies, container, false)
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
