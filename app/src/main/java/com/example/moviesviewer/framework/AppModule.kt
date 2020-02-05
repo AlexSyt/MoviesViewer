@@ -13,7 +13,7 @@ import com.example.moviesviewer.framework.datasource.local.MoviesLocalDataSource
 import com.example.moviesviewer.framework.datasource.local.db.MoviesDatabase
 import com.example.moviesviewer.framework.datasource.remote.MoviesRemoteDataSource
 import com.example.moviesviewer.framework.datasource.remote.api.MoviesApi
-import com.example.moviesviewer.presentation.MoviesViewModel
+import com.example.moviesviewer.presentation.movies.MoviesViewModel
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.Qualifier
 import org.koin.core.qualifier.named

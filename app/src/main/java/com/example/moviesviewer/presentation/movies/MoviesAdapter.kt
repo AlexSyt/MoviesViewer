@@ -1,4 +1,4 @@
-package com.example.moviesviewer.presentation
+package com.example.moviesviewer.presentation.movies
 
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.core.domain.model.Movie
 import com.example.moviesviewer.R
-import com.example.moviesviewer.presentation.MovieDiffCallback.Payload
+import com.example.moviesviewer.presentation.movies.MovieDiffCallback.Payload
 import kotlinx.android.synthetic.main.item_movie.view.*
 
 class MoviesAdapter(

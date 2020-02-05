@@ -1,4 +1,4 @@
-package com.example.moviesviewer.presentation
+package com.example.moviesviewer.presentation.movies
 
 import android.annotation.SuppressLint
 import androidx.lifecycle.LiveData
