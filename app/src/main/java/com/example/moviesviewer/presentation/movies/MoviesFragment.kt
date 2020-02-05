@@ -57,4 +57,9 @@ class MoviesFragment : Fragment(R.layout.fragment_movies) {
             view?.let { Snackbar.make(it, message, Snackbar.LENGTH_LONG).show() }
         }
     }
+
+    companion object {
+
+        fun newInstance(): Fragment = MoviesFragment()
+    }
 }
